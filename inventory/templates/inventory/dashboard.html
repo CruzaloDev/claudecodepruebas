@@ -1,0 +1,102 @@
+{% extends 'inventory/base.html' %}
+
+{% block title %}Dashboard - Sistema de Fulfillment{% endblock %}
+
+{% block content %}
+<h1 style="color: #2c3e50; margin-bottom: 2rem;">Dashboard</h1>
+
+<div class="stats-grid">
+    <div class="stat-card blue">
+        <h3>Total Clientes</h3>
+        <div class="value">{{ total_clientes }}</div>
+    </div>
+    <div class="stat-card green">
+        <h3>Total Productos</h3>
+        <div class="value">{{ total_productos }}</div>
+    </div>
+    <div class="stat-card orange">
+        <h3>Stock Total</h3>
+        <div class="value">{{ stock_total|default:0 }}</div>
+    </div>
+    <div class="stat-card red">
+        <h3>Productos Stock Bajo</h3>
+        <div class="value">{{ productos_stock_bajo }}</div>
+    </div>
+</div>
+
+<div class="card">
+    <h2>Clientes Activos</h2>
+    {% if clientes %}
+    <table>
+        <thead>
+            <tr>
+                <th>Cliente</th>
+                <th>RFC</th>
+                <th>Contacto</th>
+                <th>Total Productos</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for cliente in clientes %}
+            <tr>
+                <td><strong>{{ cliente.nombre }}</strong></td>
+                <td>{{ cliente.rfc }}</td>
+                <td>{{ cliente.contacto }}</td>
+                <td>{{ cliente.total_productos }}</td>
+                <td>
+                    <a href="{% url 'inventory:cliente_detalle' cliente.id %}" class="btn">Ver Detalle</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <div class="empty-state">
+        <p>No hay clientes registrados</p>
+    </div>
+    {% endif %}
+</div>
+
+<div class="card">
+    <h2>Últimos Movimientos</h2>
+    {% if ultimos_movimientos %}
+    <table>
+        <thead>
+            <tr>
+                <th>Fecha</th>
+                <th>Tipo</th>
+                <th>Cliente</th>
+                <th>Producto</th>
+                <th>Cantidad</th>
+                <th>Usuario</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for movimiento in ultimos_movimientos %}
+            <tr>
+                <td>{{ movimiento.fecha_movimiento|date:"d/m/Y H:i" }}</td>
+                <td>
+                    {% if movimiento.tipo_movimiento == 'ENTRADA' %}
+                        <span class="badge success">{{ movimiento.get_tipo_movimiento_display }}</span>
+                    {% elif movimiento.tipo_movimiento == 'SALIDA' %}
+                        <span class="badge warning">{{ movimiento.get_tipo_movimiento_display }}</span>
+                    {% else %}
+                        <span class="badge info">{{ movimiento.get_tipo_movimiento_display }}</span>
+                    {% endif %}
+                </td>
+                <td>{{ movimiento.producto.cliente.nombre }}</td>
+                <td>{{ movimiento.producto.sku }} - {{ movimiento.producto.nombre }}</td>
+                <td>{{ movimiento.cantidad }}</td>
+                <td>{{ movimiento.usuario }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <div class="empty-state">
+        <p>No hay movimientos registrados</p>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

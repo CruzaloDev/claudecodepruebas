@@ -1,0 +1,137 @@
+{% extends 'inventory/base.html' %}
+
+{% block title %}{{ cliente.nombre }} - Sistema de Fulfillment{% endblock %}
+
+{% block content %}
+<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+    <h1 style="color: #2c3e50;">{{ cliente.nombre }}</h1>
+    <a href="{% url 'inventory:clientes_list' %}" class="btn secondary">Volver a Clientes</a>
+</div>
+
+<div class="card">
+    <h2>Información del Cliente</h2>
+    <table>
+        <tr>
+            <th style="width: 200px;">Razón Social:</th>
+            <td>{{ cliente.razon_social }}</td>
+        </tr>
+        <tr>
+            <th>RFC:</th>
+            <td>{{ cliente.rfc }}</td>
+        </tr>
+        <tr>
+            <th>Contacto:</th>
+            <td>{{ cliente.contacto }}</td>
+        </tr>
+        <tr>
+            <th>Email:</th>
+            <td>{{ cliente.email }}</td>
+        </tr>
+        <tr>
+            <th>Teléfono:</th>
+            <td>{{ cliente.telefono }}</td>
+        </tr>
+        <tr>
+            <th>Dirección:</th>
+            <td>{{ cliente.direccion }}</td>
+        </tr>
+    </table>
+</div>
+
+<div class="card">
+    <h2>Productos del Cliente</h2>
+    {% if productos %}
+    <table>
+        <thead>
+            <tr>
+                <th>SKU</th>
+                <th>Nombre</th>
+                <th>Unidad</th>
+                <th>Stock Actual</th>
+                <th>Stock Mínimo</th>
+                <th>Stock Máximo</th>
+                <th>Estado</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for producto in productos %}
+            <tr>
+                <td><strong>{{ producto.sku }}</strong></td>
+                <td>{{ producto.nombre }}</td>
+                <td>{{ producto.unidad_medida }}</td>
+                <td>
+                    {% if producto.stock_actual < producto.stock_minimo %}
+                        <span class="badge danger">{{ producto.stock_actual|default:0 }}</span>
+                    {% elif producto.stock_actual > producto.stock_maximo %}
+                        <span class="badge warning">{{ producto.stock_actual|default:0 }}</span>
+                    {% else %}
+                        <span class="badge success">{{ producto.stock_actual|default:0 }}</span>
+                    {% endif %}
+                </td>
+                <td>{{ producto.stock_minimo }}</td>
+                <td>{{ producto.stock_maximo }}</td>
+                <td>
+                    {% if producto.activo %}
+                        <span class="badge success">Activo</span>
+                    {% else %}
+                        <span class="badge danger">Inactivo</span>
+                    {% endif %}
+                </td>
+                <td>
+                    <a href="{% url 'inventory:producto_detalle' producto.id %}" class="btn">Ver</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <div class="empty-state">
+        <p>Este cliente no tiene productos registrados</p>
+        <a href="/admin/inventory/producto/add/?cliente={{ cliente.id }}" class="btn">Agregar Producto</a>
+    </div>
+    {% endif %}
+</div>
+
+<div class="card">
+    <h2>Movimientos Recientes</h2>
+    {% if movimientos_recientes %}
+    <table>
+        <thead>
+            <tr>
+                <th>Fecha</th>
+                <th>Tipo</th>
+                <th>Producto</th>
+                <th>Ubicación</th>
+                <th>Cantidad</th>
+                <th>Usuario</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for movimiento in movimientos_recientes %}
+            <tr>
+                <td>{{ movimiento.fecha_movimiento|date:"d/m/Y H:i" }}</td>
+                <td>
+                    {% if movimiento.tipo_movimiento == 'ENTRADA' %}
+                        <span class="badge success">{{ movimiento.get_tipo_movimiento_display }}</span>
+                    {% elif movimiento.tipo_movimiento == 'SALIDA' %}
+                        <span class="badge warning">{{ movimiento.get_tipo_movimiento_display }}</span>
+                    {% else %}
+                        <span class="badge info">{{ movimiento.get_tipo_movimiento_display }}</span>
+                    {% endif %}
+                </td>
+                <td>{{ movimiento.producto.sku }}</td>
+                <td>{{ movimiento.ubicacion.codigo }}</td>
+                <td>{{ movimiento.cantidad }}</td>
+                <td>{{ movimiento.usuario }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <div class="empty-state">
+        <p>No hay movimientos registrados para este cliente</p>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
