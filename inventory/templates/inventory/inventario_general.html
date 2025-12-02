@@ -1,0 +1,60 @@
+{% extends 'inventory/base.html' %}
+
+{% block title %}Inventario General - Sistema de Fulfillment{% endblock %}
+
+{% block content %}
+<h1 style="color: #2c3e50; margin-bottom: 2rem;">Inventario General por Ubicaciones</h1>
+
+{% if ubicaciones %}
+    {% for ubicacion in ubicaciones %}
+    <div class="card">
+        <h2>{{ ubicacion.codigo }} - Pasillo {{ ubicacion.pasillo }}, Estante {{ ubicacion.estante }}, Nivel {{ ubicacion.nivel }}</h2>
+        {% if ubicacion.descripcion %}
+        <p style="color: #7f8c8d; margin-bottom: 1rem;">{{ ubicacion.descripcion }}</p>
+        {% endif %}
+
+        {% if ubicacion.inventarios.all %}
+        <table>
+            <thead>
+                <tr>
+                    <th>Cliente</th>
+                    <th>SKU</th>
+                    <th>Producto</th>
+                    <th>Cantidad</th>
+                    <th>Lote</th>
+                    <th>Vencimiento</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for inventario in ubicacion.inventarios.all %}
+                <tr>
+                    <td>{{ inventario.producto.cliente.nombre }}</td>
+                    <td><strong>{{ inventario.producto.sku }}</strong></td>
+                    <td>{{ inventario.producto.nombre }}</td>
+                    <td>{{ inventario.cantidad }}</td>
+                    <td>{{ inventario.lote|default:"N/A" }}</td>
+                    <td>{{ inventario.fecha_vencimiento|date:"d/m/Y"|default:"N/A" }}</td>
+                    <td>
+                        <a href="{% url 'inventory:producto_detalle' inventario.producto.id %}" class="btn">Ver Producto</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <div class="empty-state">
+            <p>Esta ubicación está vacía</p>
+        </div>
+        {% endif %}
+    </div>
+    {% endfor %}
+{% else %}
+<div class="card">
+    <div class="empty-state">
+        <p>No hay ubicaciones registradas</p>
+        <a href="/admin/inventory/ubicacion/add/" class="btn">Agregar Ubicación</a>
+    </div>
+</div>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,79 @@
+{% extends 'inventory/base.html' %}
+
+{% block title %}Movimientos - Sistema de Fulfillment{% endblock %}
+
+{% block content %}
+<h1 style="color: #2c3e50; margin-bottom: 2rem;">Movimientos de Inventario</h1>
+
+<div class="card">
+    <div class="filter-form">
+        <form method="get" style="display: flex; gap: 1rem; width: 100%;">
+            <select name="tipo" onchange="this.form.submit()">
+                <option value="">Todos los tipos</option>
+                <option value="ENTRADA" {% if tipo_seleccionado == 'ENTRADA' %}selected{% endif %}>Entrada</option>
+                <option value="SALIDA" {% if tipo_seleccionado == 'SALIDA' %}selected{% endif %}>Salida</option>
+                <option value="AJUSTE_POS" {% if tipo_seleccionado == 'AJUSTE_POS' %}selected{% endif %}>Ajuste Positivo</option>
+                <option value="AJUSTE_NEG" {% if tipo_seleccionado == 'AJUSTE_NEG' %}selected{% endif %}>Ajuste Negativo</option>
+                <option value="TRANSFERENCIA" {% if tipo_seleccionado == 'TRANSFERENCIA' %}selected{% endif %}>Transferencia</option>
+            </select>
+
+            <select name="cliente" onchange="this.form.submit()">
+                <option value="">Todos los clientes</option>
+                {% for cliente in clientes %}
+                <option value="{{ cliente.id }}" {% if cliente_seleccionado == cliente.id|stringformat:"s" %}selected{% endif %}>
+                    {{ cliente.nombre }}
+                </option>
+                {% endfor %}
+            </select>
+        </form>
+    </div>
+
+    <h2>Lista de Movimientos (últimos 100)</h2>
+    {% if movimientos %}
+    <table>
+        <thead>
+            <tr>
+                <th>Fecha</th>
+                <th>Tipo</th>
+                <th>Cliente</th>
+                <th>Producto</th>
+                <th>Ubicación</th>
+                <th>Cantidad</th>
+                <th>Usuario</th>
+                <th>Documento</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for movimiento in movimientos %}
+            <tr>
+                <td>{{ movimiento.fecha_movimiento|date:"d/m/Y H:i" }}</td>
+                <td>
+                    {% if movimiento.tipo_movimiento == 'ENTRADA' %}
+                        <span class="badge success">{{ movimiento.get_tipo_movimiento_display }}</span>
+                    {% elif movimiento.tipo_movimiento == 'SALIDA' %}
+                        <span class="badge warning">{{ movimiento.get_tipo_movimiento_display }}</span>
+                    {% else %}
+                        <span class="badge info">{{ movimiento.get_tipo_movimiento_display }}</span>
+                    {% endif %}
+                </td>
+                <td>{{ movimiento.producto.cliente.nombre }}</td>
+                <td>
+                    <a href="{% url 'inventory:producto_detalle' movimiento.producto.id %}">
+                        {{ movimiento.producto.sku }} - {{ movimiento.producto.nombre }}
+                    </a>
+                </td>
+                <td>{{ movimiento.ubicacion.codigo }}</td>
+                <td>{{ movimiento.cantidad }}</td>
+                <td>{{ movimiento.usuario }}</td>
+                <td>{{ movimiento.documento_referencia|default:"N/A" }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <div class="empty-state">
+        <p>No hay movimientos registrados</p>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

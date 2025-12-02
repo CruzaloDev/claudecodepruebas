@@ -1,0 +1,48 @@
+{% extends 'inventory/base.html' %}
+
+{% block title %}Clientes - Sistema de Fulfillment{% endblock %}
+
+{% block content %}
+<h1 style="color: #2c3e50; margin-bottom: 2rem;">Clientes</h1>
+
+<div class="card">
+    <h2>Lista de Clientes</h2>
+    {% if clientes %}
+    <table>
+        <thead>
+            <tr>
+                <th>Nombre</th>
+                <th>RFC</th>
+                <th>Contacto</th>
+                <th>Email</th>
+                <th>Teléfono</th>
+                <th>Total Productos</th>
+                <th>Stock Total</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for cliente in clientes %}
+            <tr>
+                <td><strong>{{ cliente.nombre }}</strong></td>
+                <td>{{ cliente.rfc }}</td>
+                <td>{{ cliente.contacto }}</td>
+                <td>{{ cliente.email }}</td>
+                <td>{{ cliente.telefono }}</td>
+                <td>{{ cliente.total_productos }}</td>
+                <td>{{ cliente.stock_total|default:0 }}</td>
+                <td>
+                    <a href="{% url 'inventory:cliente_detalle' cliente.id %}" class="btn">Ver Detalle</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <div class="empty-state">
+        <p>No hay clientes registrados</p>
+        <a href="/admin/inventory/cliente/add/" class="btn">Agregar Cliente</a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
