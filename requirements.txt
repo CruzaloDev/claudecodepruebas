@@ -1,5 +1,3 @@
-Django==4.2.17
+Django==5.2.9
+Pillow==12.0.0
 python-decouple==3.8
-# Pillow is optional - only needed for product images
-# Install manually if needed: python -m pip install Pillow
-# Note: Pillow requires Python 3.8-3.13 on Windows
